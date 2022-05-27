@@ -6,7 +6,7 @@ import uuid
 class PayPayError(Exception):
     pass
 
-class paypay(object):
+class PayPay(object):
     def __init__(self, access_token=None, device_uuid=None, client_uuid=None):
         self.host = "app4.paypay.ne.jp"
         if device_uuid:
@@ -59,12 +59,11 @@ class paypay(object):
 
     def login_otp(self, otpReferenceId, otp):
         json_data = {
-            'phoneNumber': phoneNumber,
-            'password': password,
-            'signInAttemptCount': 1,
+            'otpReferenceId': otpReferenceId,
+            'otp': otp,
         }
 
-        response = requests.post(f'https://{self.host}/bff/v1/signIn', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v1/signInWithSms', params=self.params, headers=self.headers, json=json_data).json()
         if response['header']['resultCode'] == "S0000":
             self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
             return AttrDict(response)
