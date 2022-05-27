@@ -251,7 +251,7 @@ class PayPay(object):
             'iosMinimumVersion': '2.55.0',
         }
 
-        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoney', params=self.params, headers=self.headers, json=data).json()
+        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoney', params=self.params, headers=self.headers, json=json_data).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
