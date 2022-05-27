@@ -30,14 +30,40 @@ Python 3.9.10 上で作成されテストされました
 
 ## 使い方
 
+### ログイン
 ```python
 
 from PayPayPy import PayPay
 
 paypay = PayPay()
-
+login_result = paypay.login("PHONENUMBER", "PASSWORD")
+if login_result.header.resultCode == "S0000":
+    print("ログイン成功！")
+    print("貴方のアクセストークン: " + login_result.payload.accessToken)
+elif login_result.header.resultCode == "S1004":
+    otp_result = paypay.login_otp()
+    print("ログイン成功！")
+    print("貴方のアクセストークン: " + otp_result.payload.accessToken)
 ```
 
+### その他のメソッド
+```python
+
+from PayPayPy import PayPay
+
+paypay = PayPay("YOUR_ACCESS_TOKEN")
+
+print(paypay.get_balance()) #残高照会
+print(paypay.get_history(40)) #引数に数値を設定することで指定した個数の履歴を確認
+print(paypay.get_profile()) #PayPayのプロフィール(メールアドレスなど) を取得
+print(paypay.create_mycode()) #受け取りQRコードを生成
+print(paypay.get_payment()) #登録されている支払い方法(クレジットカードなら下4桁など) を取得
+print(paypay.create_paymentcode()) #支払いQRコードを生成
+print(paypay.get_link("WYmwBH4b")) #受け取りリンク(リンクの後ろから8文字) の詳細を確認し、受け取られているかなどを確認
+print(paypay.accept_link("WYmwBH4b", "パスコードがある場合")) #受け取りリンク(リンクの後ろから8文字) の詳細を確認し、受け取られていない場合に受け取り
+print(paypay.execute_link(100, "パスコード")) #指定した額とパスワード(オプション) を使用して送金リンクを作成
+print(paypay.execute_sendmoney(100, "0000000000000000")) #指定した額とユーザーを使用して直接送金
+```
 ## 支援
 
 Bitcoin
