@@ -16,7 +16,7 @@ setup(
     ],
     install_requires=required,
     classifiers=[
-        'License :: OSI Approved :: GPL-3.0 License',
-        'Programming Language :: Python :: 3.9.10',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 3.9',
     ],
 )
