@@ -2,8 +2,8 @@
 
 PayPayをPythonから操作します。
 
-[![PyPI Version](https://img.shields.io/pypi/v/tweepy?label=PyPI)](https://pypi.org/project/tweepy/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/tweepy?label=Python)](https://pypi.org/project/tweepy/)
+[![PyPI Version](https://img.shields.io/pypi/v/PayPayPy?label=PyPI)](https://pypi.org/project/PayPayPy/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/PayPayPy?label=Python)](https://pypi.org/project/PayPayPy/)
 
 ## 特徴
 
