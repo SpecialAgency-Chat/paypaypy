@@ -7,7 +7,7 @@ class PayPayError(Exception):
     pass
 
 class PayPay(object):
-    def __init__(self, access_token=None, device_uuid=None, client_uuid=None):
+    def __init__(self, access_token=None, device_uuid=None, client_uuid=None, proxy=None):
         self.host = "app4.paypay.ne.jp"
         if device_uuid:
             self.device_uuid = device_uuid
@@ -17,6 +17,12 @@ class PayPay(object):
             self.client_uuid = device_uuid
         else:
             self.client_uuid = str(uuid.uuid4()).upper()
+        self.proxies = proxy
+        if self.proxies:
+            self.proxies = {
+                'http': self.proxies,
+                'https': self.proxies,
+            }
         response = requests.get("https://api.cokepokes.com/v-api/app/1435783608").json()
         self.headers = {
             'Host': self.host,
@@ -48,7 +54,7 @@ class PayPay(object):
             'signInAttemptCount': 1,
         }
 
-        response = requests.post(f'https://{self.host}/bff/v1/signIn', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v1/signIn', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
             return AttrDict(response)
@@ -63,7 +69,7 @@ class PayPay(object):
             'otp': otp,
         }
 
-        response = requests.post(f'https://{self.host}/bff/v1/signInWithSms', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v1/signInWithSms', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
             return AttrDict(response)
@@ -82,7 +88,7 @@ class PayPay(object):
             'payPayLang': 'ja',
         }
 
-        response = requests.get(f'https://{self.host}/bff/v1/getBalanceInfo', params=params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v1/getBalanceInfo', params=params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -96,7 +102,7 @@ class PayPay(object):
             'payPayLang': 'ja',
         }
 
-        response = requests.get(f'https://{self.host}/bff/v2/getPay2BalanceHistory', params=params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v2/getPay2BalanceHistory', params=params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -106,7 +112,7 @@ class PayPay(object):
         if not "Authorization" in self.headers:
             raise PayPayError("TOKEN_NOT_SET", "Access token has not been set.")
 
-        response = requests.get(f'https://{self.host}/bff/v2/getProfileDisplayInfo', params=self.params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v2/getProfileDisplayInfo', params=self.params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -116,7 +122,7 @@ class PayPay(object):
         if not "Authorization" in self.headers:
             raise PayPayError("TOKEN_NOT_SET", "Access token has not been set.")
 
-        response = requests.post(f'https://{self.host}/bff/v2/createP2PCode', params=self.params, headers=self.headers, json={}).json()
+        response = requests.post(f'https://{self.host}/bff/v2/createP2PCode', params=self.params, headers=self.headers, json={}, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -126,7 +132,7 @@ class PayPay(object):
         if not "Authorization" in self.headers:
             raise PayPayError("TOKEN_NOT_SET", "Access token has not been set.")
 
-        response = requests.get(f'https://{self.host}/bff/v2/getPaymentMethodList', params=self.params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v2/getPaymentMethodList', params=self.params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -141,7 +147,7 @@ class PayPay(object):
             'paymentCodeSessionId': str(uuid.uuid4()),
         }
 
-        response = requests.post(f'https://{self.host}/bff/v2/createPaymentOneTimeCodeForHome', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v2/createPaymentOneTimeCodeForHome', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -155,7 +161,7 @@ class PayPay(object):
             'payPayLang': 'ja',
         }
 
-        response = requests.get(f'https://{self.host}/bff/v2/getP2PLinkInfo', params=params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v2/getP2PLinkInfo', params=params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -169,7 +175,7 @@ class PayPay(object):
             'payPayLang': 'ja',
         }
 
-        response = requests.get(f'https://{self.host}/bff/v2/getP2PLinkInfo', params=params, headers=self.headers).json()
+        response = requests.get(f'https://{self.host}/bff/v2/getP2PLinkInfo', params=params, headers=self.headers, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             if response["payload"]["orderStatus"] == "PENDING":
                 if response["payload"]["pendingP2PInfo"]["isSetPasscode"]:
@@ -199,7 +205,7 @@ class PayPay(object):
                         'senderMessageId': response["payload"]["message"]["messageId"],
                     }
 
-                response = requests.post('https://app4.paypay.ne.jp/bff/v2/acceptP2PSendMoneyLink', params=self.params, headers=self.headers, json=json_data).json()
+                response = requests.post('https://app4.paypay.ne.jp/bff/v2/acceptP2PSendMoneyLink', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
                 if response['header']['resultCode'] == "S0000":
                     return AttrDict(response)
                 else:
@@ -232,7 +238,7 @@ class PayPay(object):
                 "iosMinimumVersion": "2.55.0"
             }
 
-        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoneyLink', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoneyLink', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
@@ -251,7 +257,7 @@ class PayPay(object):
             'iosMinimumVersion': '2.55.0',
         }
 
-        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoney', params=self.params, headers=self.headers, json=json_data).json()
+        response = requests.post(f'https://{self.host}/bff/v2/executeP2PSendMoney', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             return AttrDict(response)
         else:
