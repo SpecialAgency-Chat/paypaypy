@@ -4,7 +4,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='PayPayPy',
-    version='1.0.0',
+    version='1.0.1',
     description='PayPayのログインから情報の取得、リンクの受け取りや送金を行えます',
     url='https://github.com/SpecialAgency-Chat/paypaypy',
     author='神瀬来未',
