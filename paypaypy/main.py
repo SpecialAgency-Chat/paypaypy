@@ -29,7 +29,7 @@ class PayPay(object):
             'Client-Version': response[-1]["bundleVersion"],
             'Device-Uuid': self.device_uuid,
             'System-Locale': 'ja',
-            'User-Agent': 'PaypayApp/3.41.202205170207 CFNetwork/1126 Darwin/19.5.0',
+            'User-Agent': 'PaypayApp/3.43.202205231147 CFNetwork/1126 Darwin/19.5.0',
             'Network-Status': 'WIFI',
             'Device-Name': 'iPhone9,1',
             'Client-Os-Type': 'IOS',
@@ -46,6 +46,10 @@ class PayPay(object):
         self.params = {
             'payPayLang': 'ja'
         }
+
+    def proxy_check(self):
+        response = requests.get("https://api.vxxx.cf/ip", proxies=self.proxies).json()
+        return AttrDict(response)
 
     def login(self, phoneNumber, password):
         json_data = {
@@ -70,6 +74,33 @@ class PayPay(object):
         }
 
         response = requests.post(f'https://{self.host}/bff/v1/signInWithSms', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
+        if response['header']['resultCode'] == "S0000":
+            self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
+            return AttrDict(response)
+        else:
+            raise PayPayError(response['header']['resultCode'], response['header']['resultMessage'])
+
+    def register(self, phoneNumber, password):
+        json_data = {
+            'phoneNumber': phoneNumber,
+            'password': password,
+        }
+        
+        response = requests.post(f'https://{self.host}/bff/v1/sendRegistrationSms', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
+        if response['header']['resultCode'] == "S0000":
+            return AttrDict(response)
+        else:
+            raise PayPayError(response['header']['resultCode'], response['header']['resultMessage'])
+
+    def register_otp(self, otpReferenceId, otp):
+        json_data = {
+            'type': 'PAYPAY',
+            'otpReferenceId': otpReferenceId,
+            'privacyPolicyVersion': '1.0.2',
+            'otp': otp,
+        }
+        
+        response = requests.post(f'https://{self.host}/bff/v1/registerUser', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
         if response['header']['resultCode'] == "S0000":
             self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
             return AttrDict(response)
