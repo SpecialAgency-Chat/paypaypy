@@ -246,6 +246,38 @@ class PayPay(object):
         else:
             raise PayPayError(response['header']['resultCode'], response['header']['resultMessage'])
 
+    def reject_link(self, verificationCode):
+        if not "Authorization" in self.headers:
+            raise PayPayError("TOKEN_NOT_SET", "Access token has not been set.")
+        params = {
+            'verificationCode': verificationCode,
+            'payPayLang': 'ja',
+        }
+
+        response = requests.get(f'https://{self.host}/bff/v2/getP2PLinkInfo', params=params, headers=self.headers, proxies=self.proxies).json()
+        if response['header']['resultCode'] == "S0000":
+            if response["payload"]["orderStatus"] == "PENDING":
+                json_data = {
+                    'androidMinimumVersion': '2.55.0',
+                    'verificationCode': verificationCode,
+                    'iosMinimumVersion': '2.55.0',
+                    'senderChannelUrl': response["payload"]["message"]["chatRoomId"],
+                    'requestAt': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S+0900'),
+                    'senderMessageId': response["payload"]["message"]["messageId"],
+                    'requestId': str(uuid.uuid4()).upper(),
+                    'orderId': response["payload"]["message"]["data"]["orderId"],
+                }
+
+                response = requests.post(f'https://{self.host}/bff/v2/rejectP2PSendMoneyLink', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json()
+                if response['header']['resultCode'] == "S0000":
+                    return AttrDict(response)
+                else:
+                    raise PayPayError(response['header']['resultCode'], response['header']['resultMessage'])
+            else:
+                raise PayPayError("INVALID_STATUS", response["payload"]["orderStatus"])
+        else:
+            raise PayPayError(response['header']['resultCode'], response['header']['resultMessage'])
+
     def execute_link(self, amount:int, passcode=None):
         if not "Authorization" in self.headers:
             raise PayPayError("TOKEN_NOT_SET", "Access token has not been set.")
