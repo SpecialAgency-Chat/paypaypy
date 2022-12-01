@@ -6,7 +6,7 @@ import pkce
 import uuid
 import json
 
-def get_application():
+def get_application() -> dict:
     response = requests.get('https://apps.apple.com/jp/app/paypay-%E3%83%9A%E3%82%A4%E3%83%9A%E3%82%A4/id1435783608')
     soup = BeautifulSoup(response.text, 'html.parser')
     application = json.loads(list(json.loads(soup.find('script', attrs={'id': 'shoebox-media-api-cache-apps'}).text).values())[0])
@@ -180,7 +180,7 @@ class PayPay(object):
         self.headers['Authorization'] = f'Bearer {response.payload.accessToken}'
         return response
 
-    def register(self, phoneNumber, password):
+    def register(self, phoneNumber: str, password: str) -> AttributeDict:
         json_data = {
             'phoneNumber': phoneNumber,
             'password': password,
@@ -192,7 +192,7 @@ class PayPay(object):
 
         return response
 
-    def register_otp(self, otpReferenceId, otp):
+    def register_otp(self, otpReferenceId: str, otp: str) -> AttributeDict:
         json_data = {
             'type': 'PAYPAY',
             'otpReferenceId': otpReferenceId,
@@ -201,13 +201,12 @@ class PayPay(object):
         }
         
         response = requests.post(f'https://{self.host}/bff/v1/registerUser', params=self.params, headers=self.headers, json=json_data, proxies=self.proxies).json(object_hook=AttributeDict)
-        if response['header']['resultCode'] == "S0000":
-            self.headers["Authorization"] = "Bearer " + response["payload"]["accessToken"]
-            return response
-        else:
+        if response.header.resultCode != "S0000":
             raise PayPayError(response.header.resultCode, response.error.displayErrorResponse.title if response.error.displayErrorResponse.title else response.header.resultMessage)
+        self.headers['Authorization'] = f'Bearer {response.payload.accessToken}'
+        return response
 
-    def get_balance(self):
+    def get_balance(self) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         params = {
@@ -225,7 +224,7 @@ class PayPay(object):
 
         return response
 
-    def get_history(self, page_size: int=40):
+    def get_history(self, page_size: int = 40) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         params = {
@@ -239,7 +238,7 @@ class PayPay(object):
 
         return response
 
-    def get_profile(self):
+    def get_profile(self) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
 
@@ -249,7 +248,7 @@ class PayPay(object):
 
         return response
 
-    def create_mycode(self):
+    def create_mycode(self) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
 
@@ -259,7 +258,7 @@ class PayPay(object):
 
         return response
 
-    def get_payment(self):
+    def get_payment(self) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
 
@@ -269,7 +268,7 @@ class PayPay(object):
 
         return response
 
-    def create_paymentcode(self, paymentMethodType="WALLET", paymentMethodId="106177237"):
+    def create_paymentcode(self, paymentMethodType: str = "WALLET", paymentMethodId: str = "106177237") -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         json_data = {
@@ -284,7 +283,7 @@ class PayPay(object):
 
         return response
 
-    def get_link(self, verificationCode):
+    def get_link(self, verificationCode: str) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         params = {**self.params, 'verificationCode': verificationCode}
@@ -295,7 +294,7 @@ class PayPay(object):
 
         return response
 
-    def accept_link(self, verificationCode, passcode=None):
+    def accept_link(self, verificationCode: str, passcode: str = None) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         params = {**self.params, 'verificationCode': verificationCode}
@@ -324,7 +323,7 @@ class PayPay(object):
             raise PayPayError(response.header.resultCode, response.error.displayErrorResponse.title if response.error.displayErrorResponse.title else response.header.resultMessage)
         return response
 
-    def reject_link(self, verificationCode):
+    def reject_link(self, verificationCode: str) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         params = {**self.params, 'verificationCode': verificationCode}
@@ -350,7 +349,7 @@ class PayPay(object):
             raise PayPayError(response.header.resultCode, response.error.displayErrorResponse.title if response.error.displayErrorResponse.title else response.header.resultMessage)
         return response
 
-    def execute_link(self, amount:int, passcode=None):
+    def execute_link(self, amount: int, passcode: str = None) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         json_data = {
@@ -370,7 +369,7 @@ class PayPay(object):
 
         return response
 
-    def execute_sendmoney(self, amount, externalReceiverId):
+    def execute_sendmoney(self, amount: int, externalReceiverId: str) -> AttributeDict:
         if not "Authorization" in self.headers:
             raise PayPayError('S9999', 'ログインしてください。')
         json_data = {

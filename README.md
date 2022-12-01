@@ -38,13 +38,10 @@ from PayPayPy import PayPay
 paypay = PayPay()
 login_result = paypay.login("PHONENUMBER", "PASSWORD")
 if login_result.header.resultCode == "S0000":
-    print("ログイン成功！")
-    print("貴方のアクセストークン: " + login_result.payload.accessToken)
-elif login_result.header.resultCode == "S1004":
-    otp = input("OTP: ")
-    otp_result = paypay.login_otp(login_result.error.otpReferenceId, otp)
-    print("ログイン成功！")
-    print("貴方のアクセストークン: " + otp_result.payload.accessToken)
+    otp = input("Enter OTP: ")
+    otp_result = paypay.login_otp(otp)
+    if otp_result.header.resultCode == "S0000":
+        print("Login successful")
 ```
 
 ### その他のメソッド
@@ -68,7 +65,7 @@ print(paypay.execute_sendmoney(100, "0000000000000000")) #指定した額とユ�
 ## 支援
 
 Bitcoin
-bc1qad5yr8x8edvuxfaumqdplrs0ed93phfrxng7ur
+bc1qf9rxtmxf06efucercesh0mychxtucqk5mfqfv2
 
 ## 法的
 これは、PayPayによって影響を受けたり、推奨されたり、認定されたりするものではありません。これは独立した非公式のAPIです。自己責任でご使用ください。

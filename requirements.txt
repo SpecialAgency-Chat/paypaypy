@@ -1,4 +1,5 @@
 requests
-attrdict
+beautifulsoup4
 datetime
+pkce
 uuid
